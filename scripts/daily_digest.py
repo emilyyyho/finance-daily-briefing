@@ -230,6 +230,21 @@ def dedupe(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return sorted(best.values(), key=lambda value: (value["score"], value["published"]), reverse=True)
 
 
+def diversify(items: list[dict[str, Any]], limit: int, per_source: int = 5) -> list[dict[str, Any]]:
+    """Keep a single prolific feed from crowding out other sources."""
+    selected: list[dict[str, Any]] = []
+    counts: dict[str, int] = {}
+    for item in items:
+        source = item.get("source", "")
+        if counts.get(source, 0) >= per_source:
+            continue
+        selected.append(item)
+        counts[source] = counts.get(source, 0) + 1
+        if len(selected) >= limit:
+            break
+    return selected
+
+
 def collect_akshare(config: dict[str, Any], now: dt.datetime) -> tuple[list[dict[str, Any]], str | None]:
     watchlist = (config.get("watchlist") or {}).get("a_share") or []
     if not watchlist:
@@ -512,7 +527,7 @@ def main() -> int:
     sec_items, sec_error = collect_sec(config, now)
     statuses.append(f"{'⚠️' if ak_error and ak_items == [] else '✅'} AKShare：{ak_error or f'{len(ak_items)} 条'}")
     statuses.append(f"{'⚠️' if sec_error and sec_items == [] else '✅'} SEC EDGAR：{sec_error or f'{len(sec_items)} 条'}")
-    items = dedupe(rss_items + hot_items)[: max(1, int(config.get("max_news", 20)))]
+    items = diversify(dedupe(rss_items + hot_items), max(1, int(config.get("max_news", 20))))
     prompt = build_prompt(items, ak_items, sec_items, now)
     ai_summary, ai_error = generate_ai_summary(prompt, config)
     if ai_error:
