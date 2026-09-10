@@ -463,7 +463,11 @@ def deliver(report: str, dry_run: bool) -> list[str]:
         if not url:
             continue
         try:
-            for part in chunks(report):
+            # WeCom enforces a 4096-byte limit. 1200 characters keeps a
+            # Chinese-heavy Markdown part below that limit with headroom;
+            # Feishu accepts the larger part size.
+            part_limit = 1200 if sender == "wecom" else 3800
+            for part in chunks(report, part_limit):
                 if sender == "feishu":
                     payload = {"msg_type": "interactive", "card": {"config": {"wide_screen_mode": True}, "header": {"template": "blue", "title": {"tag": "plain_text", "content": "定制化每日财经日报"}}, "elements": [{"tag": "div", "text": {"tag": "lark_md", "content": part}}]}}
                 else:
