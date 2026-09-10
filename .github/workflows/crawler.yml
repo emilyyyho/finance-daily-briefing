@@ -28,14 +28,16 @@ on:
     #
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     #
-    # 📝 修改运行时间：只改第一个数字（0-59），表示每小时第几分钟运行
-    # 📝 Change time: Only modify the first number (0-59) = minute of each hour
+    # 北京时间 08:00 采集；北京时间 20:00 采集并生成定制化日报。
+    # GitHub Actions 使用 UTC，因此这里对应 00:00 和 12:00 UTC。
+    # 如需调整时间，请同时更新下方 custom digest step 的 schedule 判断。
     #
     # 示例 / Examples:
     #   "15 * * * *"     → 每小时第15分钟 / minute 15 every hour
     #   "30 0-14 * * *"  → 北京时间 8:00-22:00 每小时第30分钟 / Beijing 8am-10pm
     #
-    - cron: "0 0,12 * * *"
+    - cron: "0 0 * * *"
+    - cron: "0 12 * * *"
 
   workflow_dispatch:
 
@@ -168,6 +170,22 @@ jobs:
           S3_REGION: ${{ secrets.S3_REGION }}
           GITHUB_ACTIONS: true
         run: uv run python -m trendradar
+
+      # Evening/manual runs produce one consolidated report. The native
+      # TrendRadar AI stays disabled; this script owns the finance digest.
+      - name: Install AKShare client
+        if: success() && (github.event_name == 'workflow_dispatch' || github.event.schedule == '0 12 * * *')
+        run: uv pip install "akshare==1.18.40"
+
+      - name: Generate custom finance digest
+        if: success() && (github.event_name == 'workflow_dispatch' || github.event.schedule == '0 12 * * *')
+        env:
+          FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
+          WECOM_WEBHOOK_URL: ${{ secrets.WEWORK_WEBHOOK_URL }}
+          WEWORK_WEBHOOK_URL: ${{ secrets.WEWORK_WEBHOOK_URL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ secrets.GEMINI_MODEL }}
+        run: uv run python scripts/daily_digest.py
 
       # --------------------------------------------------------------------------------
       # ☁️ CLOUDFLARE PAGES DEPLOY / 部署到 Cloudflare Pages（可选）
