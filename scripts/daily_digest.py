@@ -429,14 +429,34 @@ def generate_ai_summary(prompt: str, config: dict[str, Any]) -> tuple[str | None
         return None, f"Gemini 调用失败：{type(exc).__name__}: {exc}"
 
 
+THEME_RULES = (
+    ("宏观与货币", ("央行", "利率", "降息", "降准", "人民币", "汇率", "通胀", "GDP", "CPI", "PPI", "国债"), "会先影响流动性、融资成本和汇率，再传导到股票估值、债券价格与银行利润"),
+    ("商品与资源", ("原油", "黄金", "白银", "铜", "铝", "煤炭", "稀土", "钢铁", "期货"), "价格变化会改变上游企业利润和下游成本，并可能影响通胀预期与周期股表现"),
+    ("行业与产业链", ("芯片", "半导体", "AI", "机器人", "新能源", "汽车", "医药", "航天", "电力"), "政策、订单或供需变化会先影响相关公司的收入预期，再影响板块估值和产业链景气度"),
+    ("公司与业绩", ("财报", "利润", "营收", "分红", "回购", "并购", "上市", "融资", "调研"), "核心是现金流、盈利预期和估值是否改变，通常比单纯的热搜排名更值得跟踪"),
+    ("政策与监管", ("监管", "政策", "规划", "改革", "资本市场", "反垄断", "关税", "出口", "地产"), "政策会改变行业约束、需求或风险溢价，需结合正式文件和受影响公司的公告确认"),
+)
+
+
 def fallback_summary(items: list[dict[str, Any]], ak_items: list[dict[str, Any]], sec_items: list[dict[str, Any]]) -> str:
-    lines = ["本次未配置可用的 AI API，以下为规则整理：", ""]
-    if items:
+    lines = [
+        "本次未配置可用的 AI API，以下为规则版解读。‘影响逻辑’根据标题关键词归类，只用于快速理解，不能替代原文核验。",
+        "",
+    ]
+    matched = 0
+    for theme, keywords, logic in THEME_RULES:
+        hits = [item for item in items if any(keyword.lower() in item.get("title", "").lower() for keyword in keywords)][:3]
+        if not hits:
+            continue
+        matched += len(hits)
+        titles = "；".join(item["title"] for item in hits)
+        lines.extend([f"### {theme}", f"- 观察到：{titles}", f"- 影响逻辑：{logic}。", ""])
+    if items and not matched:
         lines.append("- 重点主题按来源级别、热榜排名和新鲜度排序；请查看下方来源明细。")
     if ak_items:
-        lines.append(f"- AKShare：发现 {len(ak_items)} 条配置标的研报目录。")
+        lines.append(f"- AKShare：发现 {len(ak_items)} 条配置标的研报目录，重点看评级、盈利预测和报告日期是否发生变化。")
     if sec_items:
-        lines.append(f"- SEC EDGAR：发现 {len(sec_items)} 条配置公司的官方申报。")
+        lines.append(f"- SEC EDGAR：发现 {len(sec_items)} 条配置公司的官方申报；8-K/10-Q/10-K 通常比媒体转述更接近原始披露。")
     if not items and not ak_items and not sec_items:
         lines.append("- 本次没有获得通过时间校验的材料。")
     return "\n".join(lines)
