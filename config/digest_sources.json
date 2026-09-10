@@ -20,7 +20,7 @@
     "url": "https://news.google.com/rss/search?q=site%3Areuters.com+markets+OR+stocks+OR+economy+OR+fed+OR+earnings&hl=en-US&gl=US&ceid=US%3Aen",
     "category": "国际市场",
     "tier": "media",
-    "weight": 5,
+    "weight": 3,
     "enabled": true,
     "note": "通过 Google News RSS 聚合，消息中保留原文链接；建议阅读原文核验。"
   },
@@ -30,7 +30,7 @@
     "category": "国际市场",
     "tier": "media",
     "weight": 4,
-    "enabled": true
+    "enabled": false
   },
   {
     "name": "金融时报 Financial Times",
@@ -38,7 +38,7 @@
     "category": "国际市场",
     "tier": "media",
     "weight": 4,
-    "enabled": true
+    "enabled": false
   },
   {
     "name": "彭博 Bloomberg",
@@ -46,7 +46,7 @@
     "category": "国际市场",
     "tier": "media",
     "weight": 4,
-    "enabled": true
+    "enabled": false
   },
   {
     "name": "CNBC Markets",
@@ -54,6 +54,6 @@
     "category": "国际市场",
     "tier": "media",
     "weight": 3,
-    "enabled": true
+    "enabled": false
   }
 ]
