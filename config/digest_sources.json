@@ -1,0 +1,59 @@
+[
+  {
+    "name": "美国证券交易委员会 SEC",
+    "url": "https://www.sec.gov/news/pressreleases.rss",
+    "category": "官方披露",
+    "tier": "official",
+    "weight": 5,
+    "enabled": true
+  },
+  {
+    "name": "美联储 Federal Reserve",
+    "url": "https://www.federalreserve.gov/feeds/press_all.xml",
+    "category": "官方宏观",
+    "tier": "official",
+    "weight": 5,
+    "enabled": true
+  },
+  {
+    "name": "路透社 Reuters",
+    "url": "https://news.google.com/rss/search?q=site%3Areuters.com+markets+OR+stocks+OR+economy+OR+fed+OR+earnings&hl=en-US&gl=US&ceid=US%3Aen",
+    "category": "国际市场",
+    "tier": "media",
+    "weight": 5,
+    "enabled": true,
+    "note": "通过 Google News RSS 聚合，消息中保留原文链接；建议阅读原文核验。"
+  },
+  {
+    "name": "华尔街日报 WSJ",
+    "url": "https://feeds.content.dowjones.io/public/rss/RSSMarketsMain",
+    "category": "国际市场",
+    "tier": "media",
+    "weight": 4,
+    "enabled": true
+  },
+  {
+    "name": "金融时报 Financial Times",
+    "url": "https://www.ft.com/markets?format=rss",
+    "category": "国际市场",
+    "tier": "media",
+    "weight": 4,
+    "enabled": true
+  },
+  {
+    "name": "彭博 Bloomberg",
+    "url": "https://feeds.bloomberg.com/markets/news.rss",
+    "category": "国际市场",
+    "tier": "media",
+    "weight": 4,
+    "enabled": true
+  },
+  {
+    "name": "CNBC Markets",
+    "url": "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=20910258",
+    "category": "国际市场",
+    "tier": "media",
+    "weight": 3,
+    "enabled": true
+  }
+]
