@@ -2,7 +2,7 @@
 lookback_hours: 36
 max_news: 20
 # 有足够中文财经热榜时，日报至少保留此数量；不足时自动使用其他来源补齐。
-min_china_news: 8
+min_china_news: 14
 max_filings_per_company: 8
 
 # 仅在这里填写你真正关注的标的；留空时跳过 AKShare/EDGAR 标的查询。
