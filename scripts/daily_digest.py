@@ -293,6 +293,15 @@ def sec_filing_link(cik: str, accession: str, document: str) -> str:
     return f"https://www.sec.gov/Archives/edgar/data/{int(cik)}/{accession_path}/{document}"
 
 
+def load_sec_ticker_map() -> dict[str, str]:
+    payload = json.loads(fetch_bytes("https://www.sec.gov/files/company_tickers.json", accept="application/json"))
+    return {
+        str(value.get("ticker", "")).upper(): str(value.get("cik_str", "")).zfill(10)
+        for value in payload.values()
+        if value.get("ticker") and value.get("cik_str")
+    }
+
+
 def collect_sec(config: dict[str, Any], now: dt.datetime) -> tuple[list[dict[str, Any]], str | None]:
     watchlist = (config.get("watchlist") or {}).get("us") or []
     if not watchlist:
@@ -300,9 +309,16 @@ def collect_sec(config: dict[str, Any], now: dt.datetime) -> tuple[list[dict[str
     results: list[dict[str, Any]] = []
     errors: list[str] = []
     max_items = int(config.get("max_filings_per_company", 8))
+    ticker_map: dict[str, str] = {}
+    if any(isinstance(entry, dict) and not entry.get("cik") and entry.get("ticker") for entry in watchlist):
+        try:
+            ticker_map = load_sec_ticker_map()
+        except (OSError, urllib.error.URLError, json.JSONDecodeError, KeyError, ValueError) as exc:
+            return [], f"无法读取 SEC ticker 目录：{type(exc).__name__}: {exc}"
     for entry in watchlist:
         item = {"cik": entry} if isinstance(entry, str) else entry
-        cik = re.sub(r"\D", "", str(item.get("cik", ""))).zfill(10)
+        raw_cik = item.get("cik") or ticker_map.get(str(item.get("ticker", "")).upper(), "")
+        cik = re.sub(r"\D", "", str(raw_cik)).zfill(10)
         if not cik or cik == "0000000000":
             continue
         url = f"https://data.sec.gov/submissions/CIK{cik}.json"
