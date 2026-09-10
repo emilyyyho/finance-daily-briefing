@@ -3898,7 +3898,8 @@ MCP Inspector 是官方调试工具，用于测试 MCP 连接：
 ### 配置方法
 
 1. 编辑 `config/daily_digest.yaml`，在 `watchlist.a_share` 填 A 股代码，在
-   `watchlist.us` 填公司 CIK、ticker 和名称；不需要的市场留空。
+   `watchlist.us` 填公司 ticker（也可附上 CIK）和名称；脚本会从 SEC 官方公司
+   目录解析 ticker 对应的 CIK，不需要手动查询 10 位编号。不需要的市场留空。
 2. 在仓库 **Settings → Secrets and variables → Actions** 添加：
    `GEMINI_API_KEY`（可选，启用 AI 梳理）、`GEMINI_MODEL`（可选，默认
    `gemini-2.5-flash`），以及已有的 `FEISHU_WEBHOOK_URL` 和
