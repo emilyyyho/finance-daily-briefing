@@ -230,18 +230,41 @@ def dedupe(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return sorted(best.values(), key=lambda value: (value["score"], value["published"]), reverse=True)
 
 
-def diversify(items: list[dict[str, Any]], limit: int, per_source: int = 5) -> list[dict[str, Any]]:
-    """Keep a single prolific feed from crowding out other sources."""
+FINANCE_TERMS = (
+    "股", "股票", "股市", "A股", "港股", "美股", "基金", "债", "债券", "利率", "央行",
+    "人民币", "美元", "黄金", "白银", "原油", "期货", "银行", "证券", "保险", "地产", "楼市",
+    "上市", "财报", "利润", "营收", "分红", "并购", "融资", "IPO", "出口", "进口", "关税",
+    "制造", "芯片", "新能源", "汽车", "医药", "消费", "经济", "GDP", "CPI", "PPI", "降息", "加息", "汇率",
+)
+
+
+def diversify(items: list[dict[str, Any]], limit: int, per_source: int = 5, min_china_news: int = 8) -> list[dict[str, Any]]:
+    """Keep source diversity and reserve room for Chinese finance headlines."""
     selected: list[dict[str, Any]] = []
     counts: dict[str, int] = {}
-    for item in items:
+
+    def add(item: dict[str, Any]) -> bool:
         source = item.get("source", "")
         if counts.get(source, 0) >= per_source:
-            continue
+            return False
         selected.append(item)
         counts[source] = counts.get(source, 0) + 1
+        return True
+
+    chinese = [
+        item for item in items
+        if item.get("kind") == "hotlist" and any(term in item.get("title", "") for term in FINANCE_TERMS)
+    ]
+    for item in chinese:
+        if len(selected) >= min(limit, min_china_news):
+            break
+        add(item)
+    for item in items:
         if len(selected) >= limit:
             break
+        if item in selected:
+            continue
+        add(item)
     return selected
 
 
@@ -543,7 +566,11 @@ def main() -> int:
     sec_items, sec_error = collect_sec(config, now)
     statuses.append(f"{'⚠️' if ak_error and ak_items == [] else '✅'} AKShare：{ak_error or f'{len(ak_items)} 条'}")
     statuses.append(f"{'⚠️' if sec_error and sec_items == [] else '✅'} SEC EDGAR：{sec_error or f'{len(sec_items)} 条'}")
-    items = diversify(dedupe(rss_items + hot_items), max(1, int(config.get("max_news", 20))))
+    items = diversify(
+        dedupe(rss_items + hot_items),
+        max(1, int(config.get("max_news", 20))),
+        min_china_news=max(0, int(config.get("min_china_news", 8))),
+    )
     prompt = build_prompt(items, ak_items, sec_items, now)
     ai_summary, ai_error = generate_ai_summary(prompt, config)
     if ai_error:
