@@ -1,0 +1,26 @@
+# 定制化财经日报配置。敏感信息只放在 GitHub Actions Secrets。
+lookback_hours: 36
+max_news: 20
+max_filings_per_company: 8
+
+# 仅在这里填写你真正关注的标的；留空时跳过 AKShare/EDGAR 标的查询。
+watchlist:
+  a_share: []
+  # 示例：
+  # a_share:
+  #   - symbol: "600519"
+  #     name: "贵州茅台"
+  us:
+    # CIK 可在 SEC 公司搜索页或公司 filings 页面确认，脚本会自动补齐 10 位。
+    # 示例：
+    # - cik: "320193"
+    #   ticker: "AAPL"
+    #   name: "Apple"
+    []
+
+ai:
+  # 没有 GEMINI_API_KEY 时自动退化为规则整理，不会阻塞推送。
+  enabled: true
+  model: "gemini-2.5-flash"
+  max_output_tokens: 1800
+  temperature: 0.2
