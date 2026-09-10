@@ -3887,6 +3887,28 @@ MCP Inspector 是官方调试工具，用于测试 MCP 连接：
 
 <br>
 
+## 定制化财经日报（本仓库新增）
+
+本分支保留 TrendRadar 的采集能力，但关闭了内置 AI 和原始通知，改由
+`scripts/daily_digest.py` 在晚间运行一次统一整理。脚本会合并当前热榜、
+`config/digest_sources.json` 中的官方/主流媒体 RSS，并按配置查询 AKShare
+公开研报目录和 SEC EDGAR 官方披露。没有 API key 或没有配置标的时，仍会
+生成带原文链接的规则版报告，不会伪造数据。
+
+### 配置方法
+
+1. 编辑 `config/daily_digest.yaml`，在 `watchlist.a_share` 填 A 股代码，在
+   `watchlist.us` 填公司 CIK、ticker 和名称；不需要的市场留空。
+2. 在仓库 **Settings → Secrets and variables → Actions** 添加：
+   `GEMINI_API_KEY`（可选，启用 AI 梳理）、`GEMINI_MODEL`（可选，默认
+   `gemini-2.5-flash`），以及已有的 `FEISHU_WEBHOOK_URL` 和
+   `WEWORK_WEBHOOK_URL`。
+3. 工作流在北京时间 08:00 抓取一次，在 20:00 抓取并推送一份日报；也可以
+   在 Actions 中手动运行。所有密钥只放在 Secrets，不要写入配置文件。
+
+报告把 AI 摘要和来源明细分开，要求模型用编号引用材料；重要事实仍应打开
+原文复核，报告不构成买卖建议。
+
 ## 📄 许可证
 
 GPL-3.0 License
