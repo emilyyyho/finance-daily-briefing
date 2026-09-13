@@ -1,23 +1,24 @@
 # ChatGPT Scheduled Task 提示词
 
-将下面的正文粘贴到 ChatGPT 网页端的 Scheduled Task。把 NEWSNOW_URL 替换成你的公开 NewsNow 地址；不要把任何密钥写入提示词。
+将下面的正文粘贴到 ChatGPT 网页端的 Scheduled Task。
+
+任务配置文件（公开、无密钥）：
+https://raw.githubusercontent.com/emilyyyho/finance-daily-briefing/master/gpt-scheduled-task/newsnow_task.json
+
+请先读取该 JSON，逐一请求 newsnow.endpoints 中的地址，再执行下面的规则。
 
 ```text
 每天北京时间 20:30 执行一次。
 
-请从 NEWSNOW_URL 读取当天财经信息。
-
-处理规则：
-1. 只保留北京时间当天 00:00 到当前时间的新内容。
-2. 如果内容没有明确发布时间，标记为“发布时间未知”。
-3. 按标题和原文链接去重。
-4. 优先保留中国财经新闻，减少重复转载和无关热搜。
-5. 不使用昨天的旧内容冒充当天新闻。
-6. 不调用 Gemini API、OpenAI API 或其他外部 AI API；直接使用当前 ChatGPT 任务本身完成整理。
-7. 如果 NEWSNOW_URL 无法访问，不要猜测，也不要使用旧结果，报告“今日抓取失败”。
+只保留北京时间当天 00:00 到当前时间的新内容。
+如果内容没有明确发布时间，标记为“发布时间未知”。
+按标题和原文链接去重，最多保留 20 条，至少保留 14 条中国财经内容。
+优先保留中国财经来源，减少重复转载和无关热搜。
+不使用昨天的旧内容冒充当天新闻。
+不调用 Gemini API、OpenAI API 或其他外部 AI API；直接使用当前 ChatGPT 任务本身完成整理。
+如果 NewsNow 无法访问，不要猜测，也不要使用旧结果，报告“今日抓取失败”。
 
 请生成中文财经日报，结构如下：
-
 一、今日最重要的 5 条新闻
 二、中国宏观与政策
 三、行业与产业链
