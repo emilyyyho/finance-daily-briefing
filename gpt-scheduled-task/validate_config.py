@@ -14,6 +14,9 @@ def main() -> None:
     assert config["timezone"] == "Asia/Shanghai"
     assert config["schedule"]["local_time"] == "20:30"
     assert config["schedule"]["cron_utc"] == "30 12 * * *"
+    assert config["newsnow"]["base_url"] == "https://newsnow.busiyi.world/api/s"
+    assert len(config["newsnow"]["source_ids"]) == 16
+    assert len(config["newsnow"]["endpoints"]) == 16
     assert config["newsnow"]["max_age_hours"] == 24
     assert 1 <= config["newsnow"]["min_china_items"] <= config["newsnow"]["max_items"]
     assert config["ai"]["external_api"] is False
@@ -22,7 +25,7 @@ def main() -> None:
     for endpoint in config["newsnow"]["endpoints"]:
         parsed = urlparse(endpoint["url"])
         assert parsed.scheme == "https", endpoint["url"]
-        assert parsed.netloc, endpoint["url"]
+        assert parsed.netloc == "newsnow.busiyi.world", endpoint["url"]
         assert "key=" not in endpoint["url"].lower(), "API keys must not be committed"
 
     print("GPT scheduled task configuration: OK")
