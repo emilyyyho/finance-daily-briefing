@@ -1,0 +1,33 @@
+{
+  "timezone": "Asia/Shanghai",
+  "schedule": {
+    "local_time": "20:30",
+    "cron_utc": "30 12 * * *"
+  },
+  "newsnow": {
+    "endpoints": [
+      {
+        "name": "中国财经热榜",
+        "url": "https://example.invalid/api/s?id=replace-me&latest"
+      }
+    ],
+    "max_items": 20,
+    "min_china_items": 14,
+    "max_age_hours": 24
+  },
+  "delivery": {
+    "feishu": {
+      "enabled": true,
+      "destination": "replace-with-feishu-chat"
+    },
+    "wecom": {
+      "enabled": false,
+      "mode": "feishu-http-bridge",
+      "destination": "replace-with-wecom-group"
+    }
+  },
+  "ai": {
+    "provider": "chatgpt-scheduled-task",
+    "external_api": false
+  }
+}
