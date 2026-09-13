@@ -1,37 +1,36 @@
 # 企业微信投递路径
 
-ChatGPT 定时任务本身是否能直接调用企业微信，取决于当前聊天中是否安装并授权了企业微信连接器。为了不让日报依赖一台常开的电脑，按以下顺序选择路径。
+当前推荐链路是：
 
-## 路径 A：飞书自动化转发（推荐）
+\`\`\`text
+ChatGPT Scheduled Task
+    -> GitHub reports/YYYY-MM-DD.md
+    -> GitHub Actions
+    -> 飞书群机器人 Webhook
+    ->（可选）飞书自动化 HTTP 请求
+    -> 企业微信群机器人 Webhook
+\`\`\`
 
-1. ChatGPT 先通过飞书连接器发送日报，或写入专用飞书多维表格记录。
-2. 飞书自动化监听这条消息或新记录。
-3. 自动化使用 HTTP 请求动作，向企业微信群机器人 Webhook 发送 Markdown 消息。
-4. 企业微信只负责接收，不需要在电脑上运行 CLI。
+## 为什么不把企业微信 CLI 装在电脑上
 
-此路径不需要 GPT API，也不需要企业微信 CLI。如果你的飞书自动化没有 HTTP 请求动作，再使用路径 B 或 C。
+ChatGPT Scheduled Task 和 GitHub Actions 都能在电脑关机时运行。个人电脑上的 CLI 不能满足这个条件，因此 \`wecom-cli\` 只作为云端部署候选。
 
-## 路径 B：企业微信机器人 Webhook
+候选项目：[WeComTeam/wecom-cli](https://github.com/WeComTeam/wecom-cli)
 
-在企业微信群中创建机器人，保存 Webhook 地址。Webhook 属于敏感凭据，不要写入本仓库、任务提示词或公开文档；应放进飞书连接器的安全配置或云端密钥存储。
-
-## 路径 C：WeCom CLI
-
-候选项目：https://github.com/WecomTeam/wecom-cli
-
-安装命令：
-
-```bash
+\`\`\`bash
 npm install -g @wecom/cli
 npx skills add WeComTeam/wecom-cli -y -g
 wecom-cli auth init
 wecom-cli auth show
-```
+\`\`\`
 
-该 CLI 需要 Node.js 18 以上，授权信息默认加密保存到本地配置目录。因此，把它装在个人电脑上不能满足“电脑关机仍推送”；如采用此路径，应部署到 GitHub Actions 或其他云端运行环境，并把凭据放入密钥管理中。
+该 CLI 需要 Node.js 18 以上，并把授权信息保存在本地配置目录。若部署到云端，凭据应放入云端密钥管理，不能写入仓库。
 
-## 失败处理
+## 飞书转企业微信
 
-- 飞书发送成功、企业微信失败时，不能丢弃日报。
-- 飞书消息中应保留企业微信发送失败状态。
-- 企业微信恢复后，可以手动重发当天日报。
+1. 在企业微信群中创建群机器人，保存 Webhook。
+2. 在飞书自动化中监听日报到达或写入专用多维表格记录。
+3. 用 HTTP 请求动作调用企业微信群机器人 Webhook。
+4. 企业微信失败时，不删除 GitHub 报告，也不影响飞书主投递。
+
+企业微信 Webhook 仍属于敏感凭据，不要提交到仓库、任务提示词或公开文档。
