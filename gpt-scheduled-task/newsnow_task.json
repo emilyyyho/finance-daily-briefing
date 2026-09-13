@@ -25,84 +25,45 @@
       "fastbull-news"
     ],
     "endpoints": [
-      {
-        "name": "wallstreetcn-hot",
-        "url": "https://newsnow.busiyi.world/api/s?id=wallstreetcn-hot"
-      },
-      {
-        "name": "wallstreetcn-quick",
-        "url": "https://newsnow.busiyi.world/api/s?id=wallstreetcn-quick"
-      },
-      {
-        "name": "wallstreetcn-news",
-        "url": "https://newsnow.busiyi.world/api/s?id=wallstreetcn-news"
-      },
-      {
-        "name": "cls-hot",
-        "url": "https://newsnow.busiyi.world/api/s?id=cls-hot"
-      },
-      {
-        "name": "cls-telegraph",
-        "url": "https://newsnow.busiyi.world/api/s?id=cls-telegraph"
-      },
-      {
-        "name": "cls-depth",
-        "url": "https://newsnow.busiyi.world/api/s?id=cls-depth"
-      },
-      {
-        "name": "gelonghui",
-        "url": "https://newsnow.busiyi.world/api/s?id=gelonghui"
-      },
-      {
-        "name": "xueqiu",
-        "url": "https://newsnow.busiyi.world/api/s?id=xueqiu"
-      },
-      {
-        "name": "jin10",
-        "url": "https://newsnow.busiyi.world/api/s?id=jin10"
-      },
-      {
-        "name": "fastbull",
-        "url": "https://newsnow.busiyi.world/api/s?id=fastbull"
-      },
-      {
-        "name": "tencent-hot",
-        "url": "https://newsnow.busiyi.world/api/s?id=tencent-hot"
-      },
-      {
-        "name": "thepaper",
-        "url": "https://newsnow.busiyi.world/api/s?id=thepaper"
-      },
-      {
-        "name": "cankaoxiaoxi",
-        "url": "https://newsnow.busiyi.world/api/s?id=cankaoxiaoxi"
-      },
-      {
-        "name": "zaobao",
-        "url": "https://newsnow.busiyi.world/api/s?id=zaobao"
-      },
-      {
-        "name": "fastbull-express",
-        "url": "https://newsnow.busiyi.world/api/s?id=fastbull-express"
-      },
-      {
-        "name": "fastbull-news",
-        "url": "https://newsnow.busiyi.world/api/s?id=fastbull-news"
-      }
+      {"name": "wallstreetcn-hot", "url": "https://newsnow.busiyi.world/api/s?id=wallstreetcn-hot"},
+      {"name": "wallstreetcn-quick", "url": "https://newsnow.busiyi.world/api/s?id=wallstreetcn-quick"},
+      {"name": "wallstreetcn-news", "url": "https://newsnow.busiyi.world/api/s?id=wallstreetcn-news"},
+      {"name": "cls-hot", "url": "https://newsnow.busiyi.world/api/s?id=cls-hot"},
+      {"name": "cls-telegraph", "url": "https://newsnow.busiyi.world/api/s?id=cls-telegraph"},
+      {"name": "cls-depth", "url": "https://newsnow.busiyi.world/api/s?id=cls-depth"},
+      {"name": "gelonghui", "url": "https://newsnow.busiyi.world/api/s?id=gelonghui"},
+      {"name": "xueqiu", "url": "https://newsnow.busiyi.world/api/s?id=xueqiu"},
+      {"name": "jin10", "url": "https://newsnow.busiyi.world/api/s?id=jin10"},
+      {"name": "fastbull", "url": "https://newsnow.busiyi.world/api/s?id=fastbull"},
+      {"name": "tencent-hot", "url": "https://newsnow.busiyi.world/api/s?id=tencent-hot"},
+      {"name": "thepaper", "url": "https://newsnow.busiyi.world/api/s?id=thepaper"},
+      {"name": "cankaoxiaoxi", "url": "https://newsnow.busiyi.world/api/s?id=cankaoxiaoxi"},
+      {"name": "zaobao", "url": "https://newsnow.busiyi.world/api/s?id=zaobao"},
+      {"name": "fastbull-express", "url": "https://newsnow.busiyi.world/api/s?id=fastbull-express"},
+      {"name": "fastbull-news", "url": "https://newsnow.busiyi.world/api/s?id=fastbull-news"}
     ],
     "max_items": 20,
     "min_china_items": 14,
     "max_age_hours": 24
   },
   "delivery": {
+    "primary": "github-actions-feishu",
+    "github": {
+      "enabled": true,
+      "repository": "emilyyyho/finance-daily-briefing",
+      "branch": "master",
+      "report_path_template": "reports/{date}.md",
+      "commit_required": true
+    },
     "feishu": {
       "enabled": true,
-      "destination": "replace-with-feishu-chat"
+      "mode": "github_actions_webhook",
+      "secret_name": "FEISHU_WEBHOOK_URL"
     },
     "wecom": {
       "enabled": false,
       "mode": "feishu-http-bridge",
-      "destination": "replace-with-wecom-group"
+      "destination": "configure-in-feishu-automation"
     }
   },
   "ai": {
