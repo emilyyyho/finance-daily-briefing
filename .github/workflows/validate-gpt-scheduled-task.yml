@@ -17,5 +17,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
       - name: Validate configuration
         run: python gpt-scheduled-task/validate_config.py
+      - name: Compile delivery script
+        run: python -m py_compile gpt-scheduled-task/send_feishu.py
+      - name: Dry-run delivery script
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          Path("/tmp/sample-report.md").write_text("# Test report\n财经日报连接测试，发送时间：现在。\n", encoding="utf-8")
+          PY
+          python gpt-scheduled-task/send_feishu.py --dry-run /tmp/sample-report.md
