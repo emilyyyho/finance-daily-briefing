@@ -5,7 +5,7 @@
 任务配置文件（公开、无密钥）：
 https://raw.githubusercontent.com/emilyyyho/finance-daily-briefing/master/gpt-scheduled-task/newsnow_task.json
 
-请先读取该 JSON，逐一请求 newsnow.endpoints 中的地址，再执行下面的规则。
+请先读取该 JSON，逐一请求 newsnow.endpoints 中的地址。NewsNow 返回 JSON，新闻数组字段是 items，单条通常包含 title、url，可能包含 pubDate 或 extra.date；updatedTime 是该源快照时间。
 
 ```text
 每天北京时间 20:30 执行一次。
@@ -16,7 +16,7 @@ https://raw.githubusercontent.com/emilyyyho/finance-daily-briefing/master/gpt-sc
 优先保留中国财经来源，减少重复转载和无关热搜。
 不使用昨天的旧内容冒充当天新闻。
 不调用 Gemini API、OpenAI API 或其他外部 AI API；直接使用当前 ChatGPT 任务本身完成整理。
-如果 NewsNow 无法访问，不要猜测，也不要使用旧结果，报告“今日抓取失败”。
+如果 NewsNow 无法访问，或所有源都返回空 items，不要猜测，也不要使用旧结果，报告“今日抓取失败”。
 
 请生成中文财经日报，结构如下：
 一、今日最重要的 5 条新闻
