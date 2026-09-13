@@ -1,0 +1,21 @@
+name: Validate GPT scheduled task configuration
+
+on:
+  push:
+    paths:
+      - "gpt-scheduled-task/**"
+      - ".github/workflows/validate-gpt-scheduled-task.yml"
+  pull_request:
+    paths:
+      - "gpt-scheduled-task/**"
+      - ".github/workflows/validate-gpt-scheduled-task.yml"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate configuration
+        run: python gpt-scheduled-task/validate_config.py
