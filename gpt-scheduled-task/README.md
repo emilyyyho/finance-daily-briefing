@@ -1,15 +1,16 @@
 # GPT 定时财经日报
 
-这组配置把 ChatGPT Scheduled Tasks 作为每日财经日报的编排器：
+这组配置把 ChatGPT Scheduled Tasks 作为每日财经日报的编排器，并用 GitHub Actions 作为云端投递桥接：
 
-```text
+\`\`\`text
 ChatGPT 定时任务
     -> NewsNow 当日数据
     -> 日期过滤与标题去重
     -> GPT 事实整理与主题分析
-    -> 飞书连接器/CLI 推送
-    -> 可选：飞书自动化转发到企业微信
-```
+    -> GitHub 连接器提交 reports/YYYY-MM-DD.md
+    -> GitHub Actions
+    -> 飞书群机器人 Webhook
+\`\`\`
 
 ## 目标
 
@@ -17,28 +18,38 @@ ChatGPT 定时任务
 - 只处理北京时间当天 00:00 到运行时刻的新内容。
 - NewsNow 是主要信息源。
 - 不调用 Gemini API 或 GPT API。
-- 电脑关机时仍然可以运行 ChatGPT 网页端任务。
-- 飞书是首选投递渠道；企业微信使用飞书自动化桥接或云端 CLI。
+- 电脑关机时仍然可以运行 ChatGPT 网页端任务和 GitHub Actions。
+- Scheduled Task 不需要暴露飞书连接器；飞书由 GitHub Actions 云端发送。
 
 ## 文件
 
-- `task-prompt.md`：可直接粘贴到 ChatGPT Scheduled Task 的任务说明。
-- `newsnow_task.json`：无密钥的运行参数模板。
-- `validate_config.py`：本地和 GitHub Actions 使用的配置校验。
-- `wecom.md`：企业微信 CLI 和 Webhook 两种投递路径。
+- \`task-prompt.md\`：可直接粘贴到 ChatGPT Scheduled Task 的任务说明。
+- \`newsnow_task.json\`：无密钥的运行参数模板。
+- \`validate_config.py\`：本地和 GitHub Actions 使用的配置校验。
+- \`send_feishu.py\`：用仓库 Secret 调用飞书群机器人 Webhook 的无依赖脚本。
+- \`wecom.md\`：企业微信 CLI 和飞书自动化桥接路径。
 
-## 部署步骤
+## 一次性配置
 
-1. 在 ChatGPT 网页端打开 Scheduled，确认飞书连接器/技能在该聊天中可用。
-2. 先手动运行 `task-prompt.md` 中的“连接测试”要求，向测试飞书群发送一条短消息。
-3. 将 `newsnow_task.json` 中的 NewsNow 地址替换为你的公开接口地址。不要写入密钥。
-4. 创建每日任务，时区选择 `Asia/Shanghai`，时间选择 20:30。
-5. 连续检查前 3 次结果：日期、来源、重复率、飞书消息是否到达。
-6. 飞书稳定后，再启用 `wecom.md` 中的企业微信转发路径。
+1. 在飞书目标群中添加“群机器人”，复制 Webhook 地址。
+2. 在 GitHub 仓库的 **Settings → Secrets and variables → Actions** 中新建 Secret：
+   - Name：\`FEISHU_WEBHOOK_URL\`
+   - Secret：粘贴 Webhook 地址
+3. 不要把 Webhook 地址写进 JSON、Markdown、任务提示词或公开 Issue。
+4. 确认 ChatGPT Scheduled Task 所在聊天能使用 GitHub 连接器。飞书连接器不是必需的。
+5. 创建定时任务时粘贴 \`task-prompt.md\`，时区选 \`Asia/Shanghai\`，时间选 20:30。
+
+## 测试
+
+1. 在 GitHub 网页直接新建 \`reports/test.md\`，内容写“财经日报连接测试，发送时间：现在。”并提交到 \`master\`。
+2. 打开 **Actions → Deliver daily report to Feishu**，等待工作流运行。
+3. 检查飞书群是否收到消息。若失败，先检查 Secret 名称是否严格为 \`FEISHU_WEBHOOK_URL\`。
+4. 也可以在该工作流的 **Run workflow** 中填写一个已存在的 \`reports/*.md\` 文件路径进行重发。
+5. 日常任务写入 \`reports/YYYY-MM-DD.md\` 后，推送会自动触发，无需电脑开机。
 
 ## 安全边界
 
-不要把 NewsNow 私钥、飞书 Token、企业微信 Secret、Cookie 或任何网页登录凭据提交到此仓库。定时任务提示词也不要包含这些敏感值；使用连接器的安全凭据或密钥存储。
+不要把 NewsNow 私钥、飞书 Webhook、企业微信 Secret、Cookie 或任何网页登录凭据提交到此仓库。任务只提交日报正文和来源链接。
 
 ## 验收标准
 
@@ -46,5 +57,5 @@ ChatGPT 定时任务
 - 日报中的新闻属于北京时间当天，或明确标注“发布时间未知”。
 - 每条内容都有来源和原文链接。
 - NewsNow 无法访问时不会使用昨天的旧数据。
-- 飞书测试群可以收到完整日报。
-- 企业微信转发失败时，日报仍保留在飞书中并显示失败状态。
+- GitHub 提交成功后，Actions 能通过 Secret 将日报送到飞书。
+- 企业微信转发失败时，日报仍保留在 GitHub 和飞书链路中。
